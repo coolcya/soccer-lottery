@@ -1,0 +1,7 @@
+api:
+  football_data:
+    key: "YOUR_API_KEY_HERE"  # Get from https://www.football-data.org/
+# You may also set FOOTBALL_DATA_API_KEY instead of storing the key here.
+
+settings:
+  default_confidence_threshold: 0.7
