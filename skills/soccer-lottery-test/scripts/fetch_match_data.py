@@ -66,8 +66,8 @@ def get_match_detail_data(match_id, config=None):
             "injuries": "待至少两源交叉验证",
             "starting_lineup": "待主动查询官方首发；未公布时标注预计首发",
             "cross_validation": "required: two independent sources",
-            "odds_source": "zgzcw-only",
-            "odds_trend": "待唯一 ZGZCW 赔率源抓取",
+            "odds_source": "titan007-only",
+            "odds_trend": "待唯一 Titan007 赔率源抓取",
             "hot_level": "High" if any(x in home_team or x in away_team for x in ["Napoli", "Tottenham", "Benfica", "Real Madrid"]) else "Medium"
         }
         

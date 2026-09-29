@@ -29,5 +29,5 @@ if [[ ! -f "config.yaml" ]]; then
   echo "Created config.yaml. Add your Football-Data.org API key before running the skill."
 fi
 
-echo "Installed soccer-lottery in $ROOT"
+echo "Installed soccer-lottery-test in $ROOT"
 echo "Python: $VENV_PYTHON"

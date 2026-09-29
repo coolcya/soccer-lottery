@@ -152,3 +152,33 @@ python3 scripts/analyzer.py \
 - **保级战**：优先看战意，其次看赔率走势
 - **强队客场**：如果强队战意不高，警惕冷门
 - **赔率信号**：目标方向赔率下降0.15+是强烈信号
+
+---
+
+## Titan007 测试版验证
+
+赔率源：`https://cp.titan007.com/buy/JingCai.aspx`。测试脚本：`scripts/fetch_titan007_odds.py`。
+
+验证命令：
+
+```powershell
+.\.venv\Scripts\python.exe .\scripts\fetch_titan007_odds.py --date 2026-09-29
+```
+
+必须满足：
+
+- `source_only=true`
+- `fallback_allowed=false`
+- `valid=true`
+- 每场同时返回 `spf`、`handicap_spf`、`handicap_value`、`spf_history`、`handicap_history`
+
+让球胜平负规则测试：
+
+| 让球值 | 主队进球 | 客队进球 | 预期结果 |
+| --- | ---: | ---: | --- |
+| -1 | 2 | 0 | 胜 |
+| -1 | 1 | 0 | 平 |
+| -1 | 0 | 0 | 负 |
+| +3 | 0 | 2 | 胜 |
+| +3 | 0 | 3 | 平 |
+| +3 | 0 | 4 | 负 |

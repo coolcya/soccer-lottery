@@ -4,15 +4,15 @@ This directory is a portable Agent Skill. It works in Codex, Hermes Agent, OpenC
 
 ## 1. Copy the skill
 
-Copy the whole `soccer-lottery` directory to the skills directory used by your agent.
+Copy the whole `soccer-lottery-test` directory to the skills directory used by your agent.
 
 | Client | Typical destination |
 | --- | --- |
-| Codex | `~/.codex/skills/soccer-lottery` (Windows: `%USERPROFILE%\.codex\skills\soccer-lottery`) |
-| Hermes Agent | `~/.hermes/skills/soccer-lottery` |
-| OpenClaw | `<workspace>/skills/soccer-lottery` |
+| Codex | `~/.codex/skills/soccer-lottery-test` (Windows: `%USERPROFILE%\.codex\skills\soccer-lottery-test`) |
+| Hermes Agent | `~/.hermes/skills/soccer-lottery-test` |
+| OpenClaw | `<workspace>/skills/soccer-lottery-test` |
 
-The destination directory name should remain `soccer-lottery` so the frontmatter name and invocation key match.
+The destination directory name should remain `soccer-lottery-test` so the frontmatter name and invocation key match.
 
 ## 2. Install Python dependencies
 
@@ -62,14 +62,14 @@ Windows:
 
 ```powershell
 .\.venv\Scripts\python.exe .\scripts\fetch_match_data.py
-.\.venv\Scripts\python.exe .\scripts\fetch_zgzcw_odds.py --date 2026-09-27 --open-only
+.\.venv\Scripts\python.exe .\scripts\fetch_titan007_odds.py --date 2026-09-29 --open-only
 ```
 
 Linux or macOS:
 
 ```bash
 .venv/bin/python scripts/fetch_match_data.py
-.venv/bin/python scripts/fetch_zgzcw_odds.py --date 2026-09-27 --open-only
+.venv/bin/python scripts/fetch_titan007_odds.py --date 2026-09-29 --open-only
 ```
 
 The odds command must return JSON containing `source_only: true`, `fallback_allowed: false`, and `valid: true` when the approved source is available.
@@ -82,7 +82,7 @@ Use the direct copy method above. Codex discovers skills under `~/.codex/skills/
 
 ### Hermes Agent
 
-Direct copy into `~/.hermes/skills/soccer-lottery` is supported. For managed updates from GitHub, publish a repository containing this skill under `skills/soccer-lottery`, then add it as a custom tap:
+Direct copy into `~/.hermes/skills/soccer-lottery-test` is supported. For managed updates from GitHub, publish a repository containing this skill under `skills/soccer-lottery-test`, then add it as a custom tap:
 
 ```bash
 hermes skills tap add OWNER/REPOSITORY
@@ -97,9 +97,9 @@ Local installs live under the OpenClaw workspace `skills/` directory. To publish
 ```bash
 npm install -g clawhub
 clawhub login
-clawhub skill publish ./soccer-lottery --dry-run
-clawhub skill publish ./soccer-lottery
-clawhub install OWNER/soccer-lottery
+clawhub skill publish ./soccer-lottery-test --dry-run
+clawhub skill publish ./soccer-lottery-test
+clawhub install OWNER/soccer-lottery-test
 ```
 
 ClawHub publishes skills under MIT-0. Do not publish this directory until the scan confirms that no API key or private config file is present.
@@ -108,7 +108,7 @@ ClawHub publishes skills under MIT-0. Do not publish this directory until the sc
 
 1. GitHub repository and Release archive: best universal option for Codex, Hermes, and manual OpenClaw installs.
 2. ClawHub: best discovery and install flow for OpenClaw.
-3. Hermes custom tap: best managed update flow for Hermes; keep the skill at `skills/soccer-lottery` in the repository.
+3. Hermes custom tap: best managed update flow for Hermes; keep the skill at `skills/soccer-lottery-test` in the repository.
 
 A repository layout that supports all three is:
 
@@ -117,7 +117,7 @@ repository-root/
   README.md
   LICENSE
   skills/
-    soccer-lottery/
+    soccer-lottery-test/
       SKILL.md
       INSTALL.md
       requirements.txt

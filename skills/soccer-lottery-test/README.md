@@ -1,4 +1,4 @@
-# Soccer Lottery (足彩分析助手)
+# Soccer Lottery Test (Titan007 测试版)
 
 ⚽️ 足球分析与足彩预测 AI Skill（智能体技能） —— 基于历史对阵、伤停情报和热度降权，一句话给出方向与信心！
 可作为通用 `SKILL.md` Agent Skill 使用，适用于 Codex、Hermes Agent、OpenClaw、Trae Solo 等支持该格式的客户端。
@@ -7,7 +7,7 @@
 只需对 AI 说：「**今日红单**」或「**怎么买**」
   → 赛事全量抓取 → **多维情报采集** (H2H + 伤停 + 主动查询首发 + 两源交叉验证) → **智能避热降权** → 输出方向与信心报告
 
-联网赔率的唯一来源：https://cp.zgzcw.com/lottery/jchtplayvsForJsp.action?lotteryId=47&type=jcmini 。系统只调用 `scripts/fetch_zgzcw_odds.py` 抓取该页面的胜平负和让球胜平负赔率，禁止使用其他赔率网站、API、搜索页面或缓存作为替代或回退。
+联网赔率的唯一来源：https://cp.titan007.com/buy/JingCai.aspx 。系统只调用 `scripts/fetch_titan007_odds.py` 抓取该页面的胜平负、让球胜平负赔率和每行“变”链接对应的变化记录，禁止使用其他赔率网站、API、搜索页面或缓存作为替代或回退。
 
 其它常用说法（详见仓库根目录 `SKILL.md`）：
 - **赔率截图模式**：仅在用户明确要求“只做读图转写”时使用；截图不得替代、覆盖或兜底上述唯一联网赔率源。
@@ -31,13 +31,18 @@
 ### 3. 赔率来源与走势信号
 - **强烈信号**：目标方向赔率持续下降 0.15+
 - **警示信号**：热门方向赔率持续上升 0.15+
-- **平局信号**：平局赔率较初赔下降 0.2+（只有存在本地历史快照时才判断走势；仅抓到即时赔率时不得虚构初赔或变盘）
+- **平局信号**：平局赔率较初赔下降 0.2+（初赔和变化时点来自同一 Titan007 页面“变”链接，不得用其他来源补全）
 
 ### 4. 智能避热 (Hot Match De-weighting)
 系统会自动识别「顶级热门」场次（皇马、巴萨、曼城、PSG、拜仁、利物浦、阿森纳等）。对于高热比赛，系统会**自动下调 10-15% 的信心值**，信心上限 75%，并强制输出风险提示。
 
 ### 5. 唯一联网赔率源
-所有联网赔率只允许来自 zgzcw 指定页面，并由 `scripts/fetch_zgzcw_odds.py` 统一解析。若该来源不可用，必须报告失败并停止赔率维度分析，禁止改用其他来源。
+所有联网赔率只允许来自 Titan007 指定页面，并由 `scripts/fetch_titan007_odds.py` 统一解析。页面每场比赛包含两行：第一行是胜平负，第二行是让球胜平负及让球数；两行各自的“变”链接解析为同一来源下的变化历史。若该来源不可用，必须报告失败并停止赔率维度分析，禁止改用其他来源。
+
+### 6. 让球胜平负规则
+- **主队让1球（-1）**：主队得分 - 客队得分 > 1 为“胜”，等于 1 为“平”，小于 1 为“负”。
+- **主队受让3球（+3）**：客队得分 - 主队得分 < 3 为“胜”，等于 3 为“平”，大于 3 为“负”。
+- 程序统一按 `主队净胜球 + 主队让球值` 判定：结果大于 0 为胜、等于 0 为平、小于 0 为负。
 
 ---
 
@@ -48,7 +53,7 @@
 | **自动化管道** | 一键触发抓取+分析+报告生成，无需多轮对话 | `SKILL.md` Auto-Pipeline |
 | **基本面分析** | H2H 历史 + 伤停情报 + 首发阵容 + 热度降权综合输出 | `scripts/analyzer.py` |
 | **赛事数据** | Football-Data.org API 获取对阵和 H2H 数据 | `scripts/fetch_match_data.py` |
-| **唯一赔率源** | 仅使用 zgzcw 指定页面，`source_only=true`、禁止回退来源 | `scripts/fetch_zgzcw_odds.py` |
+| **唯一赔率源** | 仅使用 Titan007 指定页面，`source_only=true`、禁止回退来源 | `scripts/fetch_titan007_odds.py` |
 | **球队名称翻译** | 自动翻译球队英文名为中文 | `scripts/analyzer.py` |
 
 ## 分析流程
@@ -58,8 +63,9 @@
 1. Football-Data.org API (赛事数据)
    └─ 获取今日对阵列表、H2H 历史交锋
 
-2. ZGZCW 唯一赔率源
-   └─ 获取胜平负与让球胜平负即时赔率
+2. Titan007 唯一赔率源
+   └─ 第一行获取胜平负，第二行获取让球胜平负及让球数
+   └─ 逐行跟随“变”链接获取赔率变化记录
    └─ 禁止使用其他赔率网站、API、搜索页面或缓存作为回退
 ```
 
@@ -101,11 +107,11 @@
 
 ## 安装
 
-将 `soccer-lottery` 目录复制到对应客户端的 skills 目录：
+将 `soccer-lottery-test` 目录复制到对应客户端的 skills 目录：
 
-- Codex：`~/.codex/skills/soccer-lottery`
-- Hermes Agent：`~/.hermes/skills/soccer-lottery`
-- OpenClaw：`<workspace>/skills/soccer-lottery`
+- Codex：`~/.codex/skills/soccer-lottery-test`
+- Hermes Agent：`~/.hermes/skills/soccer-lottery-test`
+- OpenClaw：`<workspace>/skills/soccer-lottery-test`
 
 Windows 运行 `powershell -ExecutionPolicy Bypass -File .\install.ps1`，Linux/macOS 运行 `bash install.sh`。
 更完整的安装、ClawHub 发布和 Hermes tap 说明见 `INSTALL.md`。
@@ -137,7 +143,7 @@ api:
 ### 📊 输出内容
 - 表格一览式分析（方向 + 信心 + 热度 + 关键因素 + 伤停 + 首发状态 + 风险）
 - 按信心从高到低排列
-- 使用唯一 ZGZCW 赔率源进一步做串关计算
+- 使用唯一 Titan007 赔率源进一步做串关计算
 
 ### 🌍 球队名称翻译
 自动翻译球队名称为中文，支持常用球队特殊名称映射（如 Arsenal → 阿森纳）
@@ -162,7 +168,7 @@ api:
 | 赫塔费 vs 马洛卡 | 西甲 | 03:30 | **胜** | **60%** | 低 | 赫塔费第7争欧战；主场防守稳 | 待核实 | H2H极胶着；进攻端均弱 |
 
 ## 💡 提示
-如需结合赔率做过关推荐，我会只使用唯一 ZGZCW 赔率源计算，并在来源不可用时明确报告失败。
+如需结合赔率做过关推荐，我会只使用唯一 Titan007 赔率源计算，并在来源不可用时明确报告失败。
 ```
 
 ## License

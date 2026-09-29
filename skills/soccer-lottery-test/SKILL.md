@@ -1,10 +1,10 @@
 ---
-name: soccer-lottery
-version: 1.0.0
+name: soccer-lottery-test
+version: 1.1.0-test.1
 description: |
   足球分析与足彩预测助手：赛事抓取 → 战意分析 → 赔率走势 → 状态历史 → 三维加权 → 信心输出。
   触发关键词：今日推荐、怎么买、足彩分析、足球预测、胜平负、让球、赔率截图、盘口波动、变盘、以我图为准。
-  核心逻辑：基于【战意分析40% + 赔率走势35% + 状态历史25%】三维加权模型输出方向与信心；赛季末段权重可调整为【战意50% + 赔率35% + 历史15%】；**联网赔率唯一来源**：https://cp.zgzcw.com/lottery/jchtplayvsForJsp.action?lotteryId=47&type=jcmini；source_only=true，**禁止任何回退源、替代源或截图兜底**。
+  核心逻辑：基于【战意分析40% + 赔率走势35% + 状态历史25%】三维加权模型输出方向与信心；赛季末段权重可调整为【战意50% + 赔率35% + 历史15%】；**联网赔率唯一来源**：https://cp.titan007.com/buy/JingCai.aspx；source_only=true，**禁止任何回退源、替代源或截图兜底**。
 allowed-tools:
   - Bash
   - Read
@@ -51,7 +51,7 @@ If `.venv` is missing, run `install.ps1` on Windows or `bash install.sh` on Linu
 ## 行为声明
 
 **角色**：资深足彩数据精算师，专注赛季末段足彩分析。
-**目标**：基于【战意分析 + 赔率走势 + 状态历史】三维加权模型输出方向与信心；联网赔率只允许从唯一地址获取。**唯一联网赔率源（最高优先级）**：https://cp.zgzcw.com/lottery/jchtplayvsForJsp.action?lotteryId=47&type=jcmini；唯一执行方式为 `{python_cmd} {skill_dir}/scripts/fetch_zgzcw_odds.py --date YYYY-MM-DD`。禁止 WebSearch、WebFetch、其他 API、其他赔率网站、缓存页面、第三方数据或用户文字赔率作为替代、覆盖、静默修正或回退来源；若该地址失败、页面改版或解析为空，必须报告唯一赔率源不可用并停止赔率维度分析。脚本输出中的 `source_only=true`、`fallback_allowed=false`、`source`、`lottery_issue` 和 `valid` 是来源证明，必须保留。
+**目标**：基于【战意分析 + 赔率走势 + 状态历史】三维加权模型输出方向与信心；联网赔率只允许从唯一地址获取。**唯一联网赔率源（最高优先级）**：https://cp.titan007.com/buy/JingCai.aspx；唯一执行方式为 `{python_cmd} {skill_dir}/scripts/fetch_titan007_odds.py --date YYYY-MM-DD`。禁止 WebSearch、WebFetch、其他 API、其他赔率网站、缓存页面、第三方数据或用户文字赔率作为替代、覆盖、静默修正或回退来源；若该地址失败、页面改版或解析为空，必须报告唯一赔率源不可用并停止赔率维度分析。脚本输出中的 `source_only=true`、`fallback_allowed=false`、`source`、`page_issue` 和 `valid` 是来源证明，必须保留。
 
 ---
 
@@ -69,14 +69,18 @@ If `.venv` is missing, run `install.ps1` on Windows or `bash install.sh` on Linu
 - **采集维度（按权重排序）**：
   - **战意分析 (第一优先级)**：通过 `WebSearch` 获取积分形势、保级/争冠/欧战资格需求、球队近期新闻动态。
     - **关键指标**：保级生死战（5星）、争冠/争四关键战（5星）、无欲无求中游队（2星）
-  - **赔率走势（唯一来源）**：必须执行 `{python_cmd} {skill_dir}/scripts/fetch_zgzcw_odds.py --date YYYY-MM-DD`，只使用返回 JSON 中的 `spf` 与 `handicap_spf` 等赔率字段
+  - **赔率走势（唯一来源）**：必须执行 `{python_cmd} {skill_dir}/scripts/fetch_titan007_odds.py --date YYYY-MM-DD`，只使用返回 JSON 中的 `spf`、`handicap_spf`、`spf_changes`、`handicap_changes`、`handicap_value` 和 `handicap_settlement` 字段
   - **状态历史**：通过 API 或 `WebSearch` 获取 H2H 历史对阵、近5场状态、主客场差异
   - **情报交叉验证（强制）**：战意、伤停、停赛、首发、换帅、关键球员状态等每项必须至少使用 **2 个相互独立来源**核验。来源优先级：俱乐部/联赛官方 > 赛事官方页 > 权威媒体 > 数据聚合站。冲突时以官方信息为准；官方缺失时必须披露分歧，不得只引用单一来源后当作确定事实。
   - **首发阵容（主动查询，强制）**：每场都必须主动检索首发，至少执行两组关键词：`主队 vs 客队 官方首发/首发阵容` 和 `主队 vs 客队 starting lineup official`；同时检查联赛或比赛官方页。
     - 官方首发已公布：记录阵型、关键首发变化、核心球员伤停/停赛。
     - 官方首发未公布：必须标注 **“官方首发未公布”**，只能提供最新 **“预计首发”**，并注明媒体来源与更新时间，严禁伪装成已确认阵容。
     - 首发信息只允许来自公开可核验来源；每个关键结论至少保留两个来源名称。
-- **唯一来源约束**：赔率只能来自上述唯一地址。禁止任何其他赔率网站、搜索引擎、API、缓存或第三方数据作为替代或回退。当前来源以即时赔率为主；若没有本地历史快照可比较，不得虚构“初赔→即赔”“持续下降/上升”等结论，必须标记“缺少初赔或历史快照”。
+- **唯一来源约束**：赔率只能来自上述唯一地址。禁止任何其他赔率网站、搜索引擎、API、缓存或第三方数据作为替代或回退。Titan007 页面中的每一场比赛都包含两行：第一行是**胜平负赔率**，第二行是**让球胜平负赔率**和让球数；每行旁的“变”链接必须解析为同一 host 下的赔率变化记录，分别写入 `spf_changes` 与 `handicap_changes`。
+- **让球胜平负判定（强制）**：统一按 `主队净胜球 + 主队让球值` 计算。主队让球值为负数，主队受让为正数。
+  - **主队让1球（-1）**：主队得分 - 客队得分 > 1 为“胜”；等于 1 为“平”；小于 1 为“负”。
+  - **主队受让3球（+3）**：客队得分 - 主队得分 < 3 为“胜”；等于 3 为“平”；大于 3 为“负”。
+  - 已结束比赛必须先按上述规则计算让球结果，再与 `handicap_spf` 的胜/平/负赔率联动分析；不得按普通胜平负口径直接套用。
 
 ### Step 3: 三维加权研判与信心修正
 - **三维加权模型（验证准确率 87%+）**：
@@ -143,7 +147,7 @@ If `.venv` is missing, run `install.ps1` on Windows or `bash install.sh` on Linu
 - **核心逻辑**：战意优先，赔率验证，历史参考
 
 ## 💡 提示
-如需结合赔率做过关推荐，请提供各场赔率截图或数字，我会据此给出串关组合。
+如需结合赔率做过关推荐，我会只使用 Titan007 唯一赔率源中的胜平负、让球胜平负和“变”历史记录计算串关组合。
 ```
 
 **表格列说明**：
@@ -178,14 +182,14 @@ If `.venv` is missing, run `install.ps1` on Windows or `bash install.sh` on Linu
 
 ### 硬规则（必读）
 
-- **来源层级**：联网赔率的唯一来源始终是上述 ZGZCW 地址。截图模式只在用户明确要求“仅做读图转写”时启用；截图不得替代、覆盖或兜底唯一联网赔率源。
+- **来源层级**：联网赔率的唯一来源始终是上述 Titan007 地址。截图模式只在用户明确要求“仅做读图转写”时启用；截图不得替代、覆盖或兜底唯一联网赔率源。
 - **读图失败**：若关键赔率格、时间戳、玩法列无法辨认，**只能**请用户 **放大局部、重截、或手打一行数字**；**禁止**联网「替用户填数」。
 - **禁止例外**：不得因截图模糊或读图失败而访问其他赔率网站、API 或搜索页面。需要赔率时必须重新抓取唯一来源；抓取失败则报告失败。
 
 ### 与自动化管道的关系
 
 - 本模式 **不触发** 上文「今日推荐 / 足彩分析」一键 Step 1–4 全链。
-- 若用户同一会话 **先** 给截图模式、**后** 又要今日全自动推荐：以 **后一条明确指令** 为准，并在切换时 **声明数据源**（唯一 ZGZCW 赔率源 vs 基本面）。
+- 若用户同一会话 **先** 给截图模式、**后** 又要今日全自动推荐：以 **后一条明确指令** 为准，并在切换时 **声明数据源**（唯一 Titan007 赔率源 vs 基本面）。
 
 ### 执行步骤
 
@@ -198,7 +202,7 @@ If `.venv` is missing, run `install.ps1` on Windows or `bash install.sh` on Linu
 
 ```markdown
 ## 数据源说明
-- 本条仅为用户截图读图转写；联网赔率唯一来源为：https://cp.zgzcw.com/lottery/jchtplayvsForJsp.action?lotteryId=47&type=jcmini
+- 本条仅为用户截图读图转写；联网赔率唯一来源为：https://cp.titan007.com/buy/JingCai.aspx
 
 ## 逐场赔率转写（读图）
 

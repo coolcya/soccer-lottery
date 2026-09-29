@@ -24,5 +24,5 @@ if (-not (Test-Path -LiteralPath "config.yaml")) {
     Write-Host "Created config.yaml. Add your Football-Data.org API key before running the skill."
 }
 
-Write-Host "Installed soccer-lottery in $root"
+Write-Host "Installed soccer-lottery-test in $root"
 Write-Host "Python: $venvPython"
